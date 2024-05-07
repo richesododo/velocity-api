@@ -42,7 +42,7 @@ function authenticateToken(req, res, next) {
 // Middleware for parsing JSON bodies
 app.use(bodyParser.json());
 
-// Connect to MongoDB
+// Connect to MongoDB atlas
 mongoose
   .connect(
     "mongodb+srv://richesododo:velocity-mongodb@velocity.cvkrv39.mongodb.net/velocity?retryWrites=true&w=majority&appName=velocity",
