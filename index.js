@@ -44,10 +44,13 @@ app.use(bodyParser.json());
 
 // Connect to MongoDB
 mongoose
-  .connect("mongodb://127.0.0.1:27017/velocity", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    "mongodb+srv://richesododo:velocity-mongodb@velocity.cvkrv39.mongodb.net/velocity?retryWrites=true&w=majority&appName=velocity",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
   .then(() => {
     console.log("Connected to MongoDB...");
   })
