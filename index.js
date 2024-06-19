@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 
 // Controllers
 const userController = require("./controllers/userController");
@@ -11,20 +12,17 @@ const orderController = require("./controllers/orderController");
 
 // Initialize the app
 const app = express();
-const PORT = 5500;
 
 // Configure CORS properly
 const corsOptions = {
-  origin: "http://localhost:3000", // Adjust if your React app is on a different port
+  origin: "*", // Adjust to your front-end app origin
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true, // Allow cookies/session information to be sent between sites
-  allowedHeaders: ["Content-Type", "Authorization"], // Include Authorization header
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
-app.use(cors(corsOptions)); // Apply CORS middleware with options
+app.use(cors(corsOptions));
 
-const jwt = require("jsonwebtoken");
-
-const JWT_SECRET = "your_jwt_secret"; // Ensure your environment variable is loaded
+// JWT Authentication Middleware
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -42,21 +40,14 @@ function authenticateToken(req, res, next) {
 // Middleware for parsing JSON bodies
 app.use(bodyParser.json());
 
-// Connect to MongoDB atlas
+// Connect to MongoDB
 mongoose
-  .connect(
-    "mongodb+srv://richesododo:velocity-mongodb@velocity.cvkrv39.mongodb.net/velocity?retryWrites=true&w=majority&appName=velocity",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
-  .then(() => {
-    console.log("Connected to MongoDB...");
+  .connect(process.env.MONGODB_URI || "your_mongodb_connection_string", {
+    // useNewUrlParser: true, // Remove these options
+    // useUnifiedTopology: true, // Remove these options
   })
-  .catch((err) => {
-    console.error("Could not connect to MongoDB...", err);
-  });
+  .then(() => console.log("Connected to MongoDB..."))
+  .catch((err) => console.error("Could not connect to MongoDB...", err));
 
 // Routes
 app.get("/test", (req, res) => {
@@ -73,7 +64,6 @@ app.get("/cart", authenticateToken, cartController.showCart);
 app.post("/order", orderController.addOrder);
 app.delete("/cart", authenticateToken, cartController.removeFromCart);
 app.put("/cart/:userId/:itemId", cartController.updateCartItemQuantity);
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+// Export the app as a module
+module.exports = app;
